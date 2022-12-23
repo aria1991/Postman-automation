@@ -1,4 +1,6 @@
 # Import the necessary libraries
+import os
+import json
 from postman_api import PostmanAPI
 import requests
 
@@ -7,26 +9,11 @@ api_key = "YOUR_API_KEY"
 postman = PostmanAPI(api_key)
 
 # Define the list of APIs that you want to add to Postman
-api_list = [
-    {
-        "name": "API 1",
-        "request": {
-            "method": "GET",
-            "url": "https://api.example.com/endpoint1"
-        }
-    },
-    {
-        "name": "API 2",
-        "request": {
-            "method": "POST",
-            "url": "https://api.example.com/endpoint2",
-            "body": {
-                "mode": "raw",
-                "raw": "{\"key\":\"value\"}"
-            }
-        }
-    }
-]
+api_list = []
+
+# Read the APIs from a JSON file
+with open("apis.json", "r") as f:
+    api_list = json.load(f)
 
 # Create a Postman collection to store the APIs
 collection_name = "My Collection"
@@ -54,3 +41,16 @@ for api in api_list:
         print(f"Response body: {response.text}")
     except Exception as e:
         print(f"Error testing API: {e}")
+
+# Save the results of the tests to a JSON file
+results = []
+for api in api_list:
+    result = {
+        "name": api["name"],
+        "status_code": response.status_code,
+        "response_body": response.text
+    }
+    results.append(result)
+
+with open("results.json", "w") as f:
+    json.dump(results, f)
